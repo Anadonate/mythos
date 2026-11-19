@@ -877,9 +877,10 @@ function aura(A,pal,f,i,inten,t){ const P=pal[i], Q=pal[Math.min(pal.length-1,i+
   /* FONDO GLOBAL: continúa las auroras de la cabecera y las lleva sin cortes por cada sección */
   let tA=null,tC=null,k=.06;
   const heroOn = scrollY < document.getElementById('track').offsetHeight - innerHeight*.15;
-  if(heroOn && window.__aur){ tA=window.__aur; tC=HERO_C; k=1; }
+  if(heroOn && window.__aur && window.__aur.length===3){ tA=window.__aur; tC=HERO_C; k=1; }
   else if(inView(tl) && tl.getBoundingClientRect().top<innerHeight*.5){ const i=Math.min(3,Math.max(0,Math.floor(prog(tl)*4.25-.15+.35))); tA=TL_AUR[i]; tC=TL_PAL[i]; }
   else { const pp=clamp(prog(svc)*4.999,0,4.999), i=Math.floor(pp); tA=SVC_AUR[i]; tC=SVC_PAL[i]; }
+  if(!tA||!tC){ tA=SVC_AUR[0]; tC=SVC_PAL[0]; }
   ambCur.a=ambCur.a.map((v,j)=>v.map((x,m)=>x+(tA[j][m]-x)*k)); ambCur.c=ambCur.c.map((v,j)=>lerp3(v,tC[j],k));
   if(amb){ const g=amb.gl; g.uniform2f(amb.U('uRes'),g.canvas.width,g.canvas.height); g.uniform1f(amb.U('uTime'),reduce?0:t);
     ['uA1','uA2','uA3'].forEach((u,j)=>g.uniform4f(amb.U(u),...ambCur.a[j])); ['uC1','uC2','uC3'].forEach((u,j)=>g.uniform3fv(amb.U(u),ambCur.c[j])); amb.draw(); }
