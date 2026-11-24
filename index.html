@@ -354,7 +354,7 @@
       <ol class="svc-list" id="svcList">
         <li class="on"><span class="n">01</span><span class="t">Logo &amp; Branding</span></li>
         <li><span class="n">02</span><span class="t">Diseño web</span></li>
-        <li><span class="n">03</span><span class="t">UX/UI</span></li>
+        <li><span class="n">03</span><span class="t">Producto digital</span></li>
         <li><span class="n">04</span><span class="t">Motion graphics</span></li>
         <li><span class="n">05</span><span class="t">Redes sociales</span></li>
       </ol>
@@ -450,7 +450,7 @@
   </div>
   <div class="ft-bottom">
     <ul class="ft-svc">
-      <li><a href="#svc">Logo &amp; Branding</a></li><li><a href="#svc">Diseño web</a></li><li><a href="#svc">UX/UI</a></li><li><a href="#svc">Motion graphics</a></li><li><a href="#svc">Redes sociales</a></li>
+      <li><a href="#svc">Logo &amp; Branding</a></li><li><a href="#svc">Diseño web</a></li><li><a href="#svc">Producto digital</a></li><li><a href="#svc">Motion graphics</a></li><li><a href="#svc">Redes sociales</a></li>
     </ul>
     <div class="ft-links">
       <div><a href="#pf">Work</a><a href="#tm">Mythos</a><a href="#">Blog</a><a href="#">El Panteón</a></div>
@@ -788,8 +788,8 @@ void main(){
 
 /* ---------- datos ---------- */
 const DESC=['Logotipos y estrategias de branding que destacan en un mercado lleno de ruido.',
- 'Diseño y desarrollo web que transmite una experiencia digital impactante.',
- 'Diseño UX/UI que convierten la esencia de tu marca en experiencias digitales memorables.',
+ 'Webs y landings a medida, de la estrategia al lanzamiento, pensadas para impactar y convertir.',
+ 'Apps y plataformas con diseño UX/UI que la gente usa a diario y recuerda.',
  'Videos atractivos que dan vida a la identidad de tu empresa.',
  'Estrategias creativas que conectan con tu audiencia.'];
 // paleta del aura por servicio y por paso del timeline: [A, B, C]
@@ -897,8 +897,11 @@ function aura(A,pal,f,i,inten,t){ const P=pal[i], Q=pal[Math.min(pal.length-1,i+
     // el titular activo crece con el scroll (rápido, en el tramo central del cambio) y empuja al resto
     if(innerWidth>=760){ const vw=innerWidth/100, base=clamp(3*vw,24,50), big=clamp(7.4*vw,46,138);
       svcSv+=((scrollY-svcLy)-svcSv)*.2; svcLy=scrollY;
+      // el tamaño grande se limita para que títulos largos no se metan bajo el icono
+      if(svc._w!==innerWidth){ svc._w=innerWidth; const rr=document.querySelector('.svc-right').getBoundingClientRect();
+        lis.forEach(li=>{ const t=li._t, o=t.style.fontSize; t.style.fontSize='100px'; li._r=t.scrollWidth/100; li._x=t.getBoundingClientRect().left; t.style.fontSize=o; li._av=rr.left-li._x-2*vw; }); }
       lis.forEach((li,k)=>{ const d=Math.abs(svcCur-k); let g=clamp((0.64-d)/0.28,0,1); g=g*g*(3-2*g);
-        const fs=base+(big-base)*g; if(Math.abs(fs-(li._fs||0))>.05){ li._t.style.fontSize=fs.toFixed(2)+'px'; li._fs=fs; }
+        const bk=Math.max(base,Math.min(big,li._av/li._r)); const fs=base+(bk-base)*g; if(Math.abs(fs-(li._fs||0))>.05){ li._t.style.fontSize=fs.toFixed(2)+'px'; li._fs=fs; }
         li.style.opacity=(.2+.8*g).toFixed(3); li._t.style.letterSpacing=(-.03-.012*g).toFixed(4)+'em'; });
       const sk=clamp(svcSv*.05,-6,6); svcList.style.transform=reduce?'':`skewY(${sk*.25}deg) skewX(${-sk}deg)`; }
     if(ic&&ready){ const g=ic.gl;
@@ -928,13 +931,14 @@ function aura(A,pal,f,i,inten,t){ const P=pal[i], Q=pal[Math.min(pal.length-1,i+
     tlCs.forEach((c,k)=>{
       // primero sube el número; un instante después, el texto. Al salir, ambos suben y se desvanecen.
       const eo=t=>1-Math.pow(1-t,3);   // salida suave: llega frenando, sin golpe
-      const en=reduce?(S>=k?1:0):ease(clamp((S-k)/.5,0,1)), et=reduce?(S>=k?1:0):eo(clamp((S-k-.2)/.62,0,1));
+      const enR=reduce?(S>=k?1:0):eo(clamp((S-k+.12)/.85,0,1)); c._en=(c._en===undefined?enR:c._en+(enR-c._en)*.07); const en=reduce?enR:c._en, et=reduce?(S>=k?1:0):eo(clamp((S-k-.2)/.62,0,1));
       const next=k<3?ease(clamp((S-k-1)/.55,0,1)):0;
       if(en>.6&&et>.3) best=k;
       c.style.transform='none'; c.style.opacity=(en>0||et>0)&&next<1?1:0;
       if(k===0) tlHead.style.opacity=(1-en).toFixed(3), tlHead.style.transform=`translate3d(0,${(-en*12*vh).toFixed(1)}px,0)`;
-      c._n.style.transform=`translate3d(${(sm.x*-12).toFixed(1)}px,${((1-en)*100*vh - next*22*vh).toFixed(1)}px,0) rotate(${(sm.x*1.2).toFixed(2)}deg)`;
-      c._n.style.opacity=(Math.min(1,en*1.4)*(1-next)).toFixed(3);
+      // número: entra más corto y frenando (inercia propia), sin golpe al llegar
+      c._n.style.transform=`translate3d(${(sm.x*-12).toFixed(1)}px,${((1-en)*48*vh - next*22*vh).toFixed(1)}px,0) rotate(${(sm.x*1.2).toFixed(2)}deg) scale(${(.94+.06*en).toFixed(4)})`;
+      c._n.style.opacity=(Math.min(1,en*1.25)*(1-next)).toFixed(3);
       c._t.style.transform=`translate3d(0,${((1-et)*26*vh - next*16*vh).toFixed(1)}px,0)`+(tmob?'':' translateY(-50%)');
       c._t.style.opacity=(1-Math.min(1,next*2.2)).toFixed(3);   // el texto anterior se va antes de que llegue el nuevo
       // escalonado: título, después el texto y por último las semanas
